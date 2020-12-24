@@ -1,0 +1,39 @@
+{
+  "name": "javadoc-tokenizer",
+  "version": "1.0.0",
+  "description": "Tokenize source code documentation",
+  "tags": [
+    "jsdoc",
+    "esdoc",
+    "documentation",
+    "javadoc",
+    "comments",
+    "docs",
+    "apidocs"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "npx jest",
+    "watch": "npx jest --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kensnyder/javadoc-tokenizer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kensnyder/javadoc-tokenizer/issues"
+  },
+  "homepage": "https://github.com/kensnyder/javadoc-tokenizer#readme",
+  "dependencies": {
+    "tokenize-comment": "^3.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.16.0",
+    "eslint-config-prettier": "^7.1.0",
+    "jest": "^26.6.3",
+    "prettier": "^2.2.1",
+    "pretty-var-export": "^1.1.3"
+  }
+}
