@@ -39,6 +39,8 @@ describe('Tokenizer.getContext', () => {
 					type: undefined,
 				},
 			],
+			argsString: 'a',
+			isAsync: false,
 			canAddDocgen: false,
 		});
 	});
@@ -59,6 +61,7 @@ describe('Tokenizer.getContext', () => {
 					type: undefined,
 				},
 			],
+			argsString: 'a',
 			canAddDocgen: false,
 		});
 	});
@@ -79,12 +82,14 @@ describe('Tokenizer.getContext', () => {
 					type: undefined,
 				},
 			],
+			argsString: 'a',
+			isAsync: false,
 			canAddDocgen: false,
 		});
 	});
 	it('should find default exported functions', () => {
 		const tokenizer = new Tokenizer();
-		const context = tokenizer.getContext('export default function(a) {');
+		const context = tokenizer.getContext('export default async function(a) {');
 		expect(context).toEqual({
 			type: 'function',
 			subtype: null,
@@ -99,12 +104,14 @@ describe('Tokenizer.getContext', () => {
 					type: undefined,
 				},
 			],
+			argsString: 'a',
+			isAsync: true,
 			canAddDocgen: false,
 		});
 	});
 	it('should find assigned functions', () => {
 		const tokenizer = new Tokenizer();
-		const context = tokenizer.getContext('const a = function(b) {');
+		const context = tokenizer.getContext('const a = async function(b) {');
 		expect(context).toEqual({
 			type: 'function',
 			subtype: 'variable',
@@ -119,6 +126,8 @@ describe('Tokenizer.getContext', () => {
 					type: undefined,
 				},
 			],
+			argsString: 'b',
+			isAsync: true,
 			canAddDocgen: true,
 		});
 	});
@@ -139,12 +148,14 @@ describe('Tokenizer.getContext', () => {
 					type: undefined,
 				},
 			],
+			argsString: 'c',
+			isAsync: false,
 			canAddDocgen: true,
 		});
 	});
 	it('should find class methods', () => {
 		const tokenizer = new Tokenizer();
-		const context = tokenizer.getContext('method(a) {');
+		const context = tokenizer.getContext('async method(a) {');
 		expect(context).toEqual({
 			type: 'function',
 			subtype: 'method',
@@ -159,12 +170,14 @@ describe('Tokenizer.getContext', () => {
 					type: undefined,
 				},
 			],
+			argsString: 'a',
+			isAsync: true,
 			canAddDocgen: false,
 		});
 	});
 	it('should find class property methods', () => {
 		const tokenizer = new Tokenizer();
-		const context = tokenizer.getContext('method: (a) => {');
+		const context = tokenizer.getContext('method: async (a) => {');
 		expect(context).toEqual({
 			type: 'function',
 			subtype: 'method',
@@ -179,6 +192,8 @@ describe('Tokenizer.getContext', () => {
 					type: undefined,
 				},
 			],
+			argsString: 'a',
+			isAsync: true,
 			canAddDocgen: false,
 		});
 	});
@@ -189,7 +204,6 @@ describe('Tokenizer.getContext', () => {
 			type: 'variable',
 			subtype: 'property',
 			name: 'this.max',
-			params: null,
 			canAddDocgen: false,
 		});
 	});
@@ -207,11 +221,12 @@ describe('Tokenizer.scanSource', () => {
 		expect(blocks).toHaveLength(2);
 	});
 });
-fdescribe('Tokenizer.tokenizeBlock', () => {
+describe('Tokenizer.tokenizeBlock', () => {
 	it('should handle ignore', () => {
-		const source = `/**
-* @ignore 		
-*/
+		const source = `
+/**
+ * @ignore 		
+ */
 function foo() {}`;
 		const tokenizer = new Tokenizer();
 		const blocks = tokenizer.scanSource(source);
@@ -219,16 +234,258 @@ function foo() {}`;
 		expect(tokenized.ignore).toBe(true);
 	});
 
-	fit('should handle description', () => {
-		const source = `/**
-* @desc Does stuff		
-*/
+	it('should handle description', () => {
+		const source = `
+/**
+ * @desc Does stuff		
+ */
 function foo() {}`;
 		const tokenizer = new Tokenizer();
 		const blocks = tokenizer.scanSource(source);
 		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
 		expect(tokenized.name).toBe('foo');
 		expect(tokenized.description).toBe('Does stuff');
+	});
+
+	it('should handle double description', () => {
+		const source = `
+/**
+ * Description		
+ * @desc Does stuff		
+ */
+function foo() {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.name).toBe('foo');
+		expect(tokenized.description).toBe('Description\nDoes stuff');
+	});
+
+	it('should handle @public', () => {
+		const source = `
+/**
+ * @public		
+ */
+function foo() {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.access).toBe('public');
+	});
+
+	it('should handle @private', () => {
+		const source = `
+/**
+ * @private		
+ */
+function foo() {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.access).toBe('private');
+	});
+
+	it('should handle @protected', () => {
+		const source = `
+/**
+ * @protected		
+ */
+function foo() {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.access).toBe('protected');
+	});
+
+	it('should handle @access', () => {
+		const source = `
+/**
+ * @access public		
+ */
+function foo() {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.access).toBe('public');
+	});
+
+	it('should infer public access', () => {
+		const source = `
+/**
+ * A thing		
+ */
+function foo() {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.access).toBe('public');
+	});
+
+	it('should infer private access', () => {
+		const source = `
+/**
+ * A thing		
+ */
+function _foo() {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.access).toBe('private');
+	});
+
+	it('should recognize @chainable', () => {
+		const source = `
+/**
+ * @chainable		
+ */
+function foo() {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.chainable).toBe(true);
+	});
+
+	it('should recognize @deprecated', () => {
+		const source = `
+/**
+ * @deprecated		
+ */
+function foo() {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.deprecated).toBe(true);
+	});
+
+	it('should recognize @version', () => {
+		const source = `
+/**
+ * @version 1.0.0		
+ */
+function foo() {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.version).toBe('1.0.0');
+	});
+
+	it('should recognize @since', () => {
+		const source = `
+/**
+ * @since 1.0.0		
+ */
+function foo() {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.since).toBe('1.0.0');
+	});
+
+	it('should recognize @todo', () => {
+		const source = `
+/**
+ * @todo Refactor this 
+ * @todo Add features		
+ */
+function foo() {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.todos).toEqual(['Refactor this', 'Add features']);
+	});
+
+	it('should recognize @see', () => {
+		const source = `
+/**
+ * @see https://example.com/there
+ * @see bar function
+ */
+function foo() {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.see).toEqual([
+			'https://example.com/there',
+			'bar function',
+		]);
+	});
+
+	it('should recognize @throws', () => {
+		const source = `
+/**
+ * @throws {Error} When max is not a number
+ */
+function foo(max) {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.throws).toEqual([
+			{
+				type: 'Error',
+				description: 'When max is not a number',
+				properties: [],
+			},
+		]);
+	});
+
+	it('should catch custom tags', () => {
+		const source = `
+/**
+ * @foobar baz
+ * @fizz buzz
+ */
+function foo(max) {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.customTags).toEqual([
+			{
+				tag: 'foobar',
+				value: 'baz',
+			},
+			{
+				tag: 'fizz',
+				value: 'buzz',
+			},
+		]);
+	});
+
+	it('should attach properties to @param', () => {
+		const source = `
+/**
+ * @param {Object} options
+ * @property {Boolean} doIt  If true, do the thing
+ * @property {String} name  The thing name
+ */
+function foo(options) {}`;
+		const tokenizer = new Tokenizer();
+		const blocks = tokenizer.scanSource(source);
+		const tokenized = tokenizer.tokenizeBlock(blocks[0]);
+		expect(tokenized.params).toEqual([
+			{
+				type: 'Object',
+				name: 'options',
+				description: '',
+				required: true,
+				default: undefined,
+				properties: [
+					{
+						type: 'Boolean',
+						name: 'doIt',
+						description: 'If true, do the thing',
+						required: true,
+						default: undefined,
+					},
+					{
+						type: 'String',
+						name: 'name',
+						description: 'The thing name',
+						required: true,
+						default: undefined,
+					},
+				],
+			},
+		]);
 	});
 
 	it('should parse a comment block', () => {
@@ -265,45 +522,17 @@ function foo() {}`;
 				},
 			],
 			returns: {
-				type: undefined,
+				type: 'String',
 				description: '',
 				properties: [],
 			},
 			customTags: [],
 			type: 'function',
 			subtype: null,
+			signature: "bytesToText(bytes, precision = 'auto') ⇒ {String}",
 			canAddDocgen: true,
 		});
 	});
-	// it('should parse 2 comment blocks', () => {
-	// 	const tokenizer = new Tokenizer();
-	// 	const blocks = tokenizer.scanSource(fixtureJs2Functions);
-	// 	const block0 = tokenizer.tokenizeBlock(blocks[0]);
-	// 	const block1 = tokenizer.tokenizeBlock(blocks[1]);
-	// 	expect(block0.description).toBe(
-	// 		'Return a random integer between min and max inclusive'
-	// 	);
-	// 	expect(block1.description).toBe(
-	// 		'Return a random float between min and max exclusive'
-	// 	);
-	// });
-	// 	it('should parse block completely', () => {
-	// 		const tokenizer = new Tokenizer();
-	// const comment = `/**
-	//  *
-	//  *
-	//  *
-	//  *
-	//  *
-	//  */`;
-	// 		const block = tokenizer.tokenizeBlock({
-	// 			comment,
-	// 			context:
-	// 		});
-	// 		expect(block).toEqual({
-	//
-	// 		});
-	// 	});
 });
 describe('Tokenizer._convertParamTag', () => {
 	it('should parse a comment block', () => {
@@ -377,18 +606,79 @@ describe('Tokenizer._convertParamTag', () => {
 		});
 	});
 });
+
+describe('Tokenizer._convertTypedTag', () => {
+	it('should parse throws', () => {
+		const tokenizer = new Tokenizer();
+		const converted = tokenizer._convertTypedTag({
+			type: 'tag',
+			raw: '@throws {Error}',
+			key: 'throws',
+			value: '{Error}',
+		});
+		expect(converted).toEqual({
+			type: 'Error',
+			description: '',
+			properties: [],
+		});
+	});
+	it('should parse empty throws', () => {
+		const tokenizer = new Tokenizer();
+		const converted = tokenizer._convertTypedTag({
+			type: 'tag',
+			raw: '@throws',
+			key: 'throws',
+			value: '',
+		});
+		expect(converted).toEqual({
+			type: undefined,
+			description: '',
+			properties: [],
+		});
+	});
+	it('should parse throws with type and description', () => {
+		const tokenizer = new Tokenizer();
+		const converted = tokenizer._convertTypedTag({
+			type: 'tag',
+			raw: '@throws {MyException} When stuff goes sour',
+			key: 'throws',
+			value: '{MyException} When stuff goes sour',
+		});
+		expect(converted).toEqual({
+			type: 'MyException',
+			description: 'When stuff goes sour',
+			properties: [],
+		});
+	});
+	it('should parse throws with description but no type', () => {
+		const tokenizer = new Tokenizer();
+		const converted = tokenizer._convertTypedTag({
+			type: 'tag',
+			raw: '@throws When stuff goes sour',
+			key: 'throws',
+			value: 'When stuff goes sour',
+		});
+		expect(converted).toEqual({
+			type: undefined,
+			description: 'When stuff goes sour',
+			properties: [],
+		});
+	});
+});
 describe('Tokenizer._parseSignature', () => {
 	it('should parse a function with no args', () => {
 		const tokenizer = new Tokenizer();
 		const signature = 'function foobar() {';
 		const parsed = tokenizer._parseSignature(signature);
-		expect(parsed).toEqual([]);
+		expect(parsed.argsString).toEqual('');
+		expect(parsed.params).toEqual([]);
 	});
 	it('should parse a function with one arg', () => {
 		const tokenizer = new Tokenizer();
 		const signature = 'function random(max) {';
 		const parsed = tokenizer._parseSignature(signature);
-		expect(parsed).toEqual([
+		expect(parsed.argsString).toEqual('max');
+		expect(parsed.params).toEqual([
 			{
 				type: undefined,
 				name: 'max',
@@ -410,7 +700,17 @@ describe('Tokenizer._parseSignature', () => {
 	undef
 ) {`;
 		const parsed = tokenizer._parseSignature(signature);
-		expect(parsed).toEqual([
+		expect(parsed.argsString).toEqual(
+			`
+	str = "a",
+	num = 5,
+	arr = [1, 2, 3],
+	bool = true,
+	obj = {"bar": "baz"},
+	undef
+`.trim()
+		);
+		expect(parsed.params).toEqual([
 			{
 				type: 'String',
 				name: 'str',

@@ -20,6 +20,8 @@ class Tokenizer {
 		let match;
 		// these regexes are specific to JavaScript
 		match = code.match(
+			//                      $1
+			// export default class MyClass
 			/^(?:|export |export default )class\s+([$a-zA-Z_][$\w_]*) /
 		);
 		if (match) {
@@ -31,48 +33,90 @@ class Tokenizer {
 				canAddDocgen: false,
 			};
 		}
-		match =
-			code.match(
-				/^(?:|export |export default )function\s*([$a-zA-Z_][$\w_]*)?/
-			) || code.match(/([$a-zA-Z_][$\w_.]*)\s*(=)\s*function/);
+		match = code.match(
+			//                $1             $2
+			// export default async function foo
+			/^(?:|export\s+|export default\s+)(async\s+)?function\s*([$a-zA-Z_][$\w_]*)?/
+		);
 		if (match) {
+			const { argsString, params } = this._parseSignature(code);
 			return {
 				type: 'function',
-				subtype: match[2] === '=' ? 'variable' : null,
-				name: match[1] || '',
-				params: this._parseSignature(code),
-				canAddDocgen: !!match[1],
+				subtype: null,
+				name: match[2] || '',
+				params,
+				argsString,
+				isAsync: !!match[1],
+				canAddDocgen: !!match[2],
 			};
 		}
+		// $1     $2 $3
+		// foo.bar = async function
+		match = code.match(/([$a-zA-Z_][$\w_.]*)\s*(=)\s*(async )?function/);
+		if (match) {
+			const { argsString, params } = this._parseSignature(code);
+			return {
+				type: 'function',
+				subtype: 'variable',
+				name: match[1],
+				params,
+				argsString,
+				isAsync: !!match[3],
+				canAddDocgen: true,
+			};
+		}
+		// $1
+		// constructor(
 		match = code.match(/^constructor\s*\(/);
 		if (match) {
+			const { argsString, params } = this._parseSignature(code);
 			return {
 				type: 'function',
 				subtype: 'constructor',
 				name: 'constructor',
-				params: this._parseSignature(code),
+				params,
+				argsString,
 				canAddDocgen: false,
 			};
 		}
-		match =
-			code.match(/^([$a-zA-Z_][$\w_]*)[\s\S]+?\)\s*{$/) ||
-			code.match(/^([$a-zA-Z_][$\w_]*)\s*:\s*\(.*\)/);
+		// $1    $2
+		// async method(args) {
+		match = code.match(/^(async\s+)?([$a-zA-Z_][$\w_]*)[\s\S]+?\)\s*{$/);
 		if (match) {
+			const { argsString, params } = this._parseSignature(code);
+			return {
+				type: 'function',
+				subtype: 'method',
+				name: match[2],
+				params,
+				argsString,
+				isAsync: !!match[1],
+				canAddDocgen: false,
+			};
+		}
+		// $1      $2
+		// method: async (args) => {
+		match = code.match(/^([$a-zA-Z_][$\w_]*)\s*:\s*(async\s+)?\(.*\)\s*=>/);
+		if (match) {
+			const { argsString, params } = this._parseSignature(code);
 			return {
 				type: 'function',
 				subtype: 'method',
 				name: match[1],
-				params: this._parseSignature(code),
+				params,
+				argsString,
+				isAsync: !!match[2],
 				canAddDocgen: false,
 			};
 		}
+		//      $1
+		// this.something
 		match = code.match(/^(this\.[$a-zA-Z_][$\w_]*)/);
 		if (match) {
 			return {
 				type: 'variable',
 				subtype: 'property',
 				name: match[1],
-				params: null,
 				canAddDocgen: false,
 			};
 		}
@@ -82,15 +126,24 @@ class Tokenizer {
 		const blocks = this.scanSource(fileSrc);
 		// get blocks and tokenize each
 	}
-	addDocgen(identifier, tokenized) {
-		// TODO: format into proper docgenInfo format
-		return `try {
-	${identifier}.__docgenInfo = ${JSON.stringify(info)};
-} catch (e) {}`;
+	getDocgenCode(tokenized) {
+		// 		// TODO: format into proper docgenInfo format
+		// 		if (tokenized.canAddDocgen)
+		//
+		//
+		// 		const docgen = JSON.stringify({
+		// 			displayName,
+		// 			description,
+		// 			props,
+		// 			propsOrder,
+		// 			signature,
+		// 			block: parseDocs(`/**\n${docblock}\n*/`),
+		// 		return `try {
+		// 	${identifier}.__docgenInfo = ${JSON.stringify(info)};
+		// } catch (e) {}`;
 	}
 	tokenizeBlock(commentBlock) {
 		const base = parseComment(commentBlock.comment);
-		pretty.log({ base });
 		const final = {
 			ignore: false,
 			name: commentBlock.context.name,
@@ -121,8 +174,12 @@ class Tokenizer {
 				final.access = tag.key;
 			} else if (tag.key.match(/^api|access$/)) {
 				final.access = tag.value;
-			} else if (tag.key.match(/^desc(ription)$/)) {
-				final.description = tag.value;
+			} else if (tag.key.match(/^desc(ription)?$/)) {
+				if (final.description) {
+					final.description += '\n' + tag.value;
+				} else {
+					final.description = tag.value;
+				}
 			} else if (tag.key === 'ignore') {
 				final.ignore = true;
 			} else if (tag.key === 'chainable') {
@@ -130,7 +187,9 @@ class Tokenizer {
 			} else if (tag.key === 'see') {
 				final.see.push(tag.value);
 			} else if (tag.key === 'throws') {
-				final.throws.push(tag.value);
+				const param = this._convertTypedTag(tag);
+				final.throws.push(param);
+				lastProperties = param.properties;
 			} else if (tag.key === 'version') {
 				final.version = tag.value;
 			} else if (tag.key === 'since') {
@@ -145,15 +204,14 @@ class Tokenizer {
 				lastProperties = param.properties;
 			} else if (tag.key === 'property') {
 				if (lastProperties) {
-					lastProperties.push(this._convertParamTag(tag));
+					// We don't support properties that have properties
+					// so remove the properties key
+					const { properties, ...converted } = this._convertParamTag(tag);
+					lastProperties.push({ ...converted });
 				}
 			} else if (tag.key.match(/^returns?$/)) {
-				const converted = this._convertParamTag(tag);
-				const value = {
-					type: converted.type,
-					description: converted.description,
-					properties: [],
-				};
+				const value = this._convertTypedTag(tag);
+				final.returns = value;
 				lastProperties = value.properties;
 			} else {
 				// unknown tags
@@ -163,8 +221,20 @@ class Tokenizer {
 				});
 			}
 		}
+		// handle implicit params
 		if (final.params.length === 0) {
 			final.params = commentBlock.context.params;
+		}
+		// get implied access
+		if (final.access === null) {
+			final.access = final.name.match(/^_/) ? 'private' : 'public';
+		}
+		// calculate the signature if applicable
+		if (final.type === 'function') {
+			const maybeAsync = commentBlock.context.isAsync ? 'async ' : '';
+			const argsString = commentBlock.context.argsString;
+			const returnType = final.returns.type || 'undefined';
+			final.signature = `${maybeAsync}${final.name}(${argsString}) ⇒ {${returnType}}`.trim();
 		}
 		return final;
 	}
@@ -178,7 +248,9 @@ class Tokenizer {
 	}
 	_convertParamTag(data) {
 		const [, type, name, description] =
-			data.value.match(/^(?:{([^}]+)}\s+)?([\w_[\]='"]+)(\s+.+)?$/) || [];
+			//  $1    $2         $3
+			// {Type} paramName  Description
+			data.value.match(/^(?:{([^}]+)}\s+)?([\w_[\]='"]+)?(\s+.+)?$/) || [];
 		const [, nameWithoutBrackets, defValue] =
 			(name || '').match(/^\[(.+?)(?:=(.+))]$/) || [];
 		return {
@@ -190,10 +262,21 @@ class Tokenizer {
 			properties: [],
 		};
 	}
+	_convertTypedTag(data) {
+		const [, type, description] =
+			//  $1    $2
+			// {Type} Description
+			data.value.match(/^(?:{([^}]+)})?(.*)$/) || [];
+		return {
+			type: type ? this._normalizeType(type) : undefined,
+			description: this._normalizeWhitespace(description.trim()),
+			properties: [],
+		};
+	}
 	_parseSignature(signature) {
 		const [, betweenParens] = signature.match(/.*?\(([\s\S]*)\)/) || [];
 		if (!betweenParens) {
-			return [];
+			return { argsString: '', params: [] };
 		}
 		const argNames = [];
 		const hasEquals = [];
@@ -212,10 +295,10 @@ class Tokenizer {
 	}
 })();	
 `;
-		// (1, eval) is indirect eval used to avoid strict mode errors
+		// (1, eval) is indirect eval. It is used her to avoid strict mode errors
 		// because "with" is not allowed in strict mode code
 		const defaults = (1, eval)(code);
-		return argNames.map((name, idx) => {
+		const params = argNames.map((name, idx) => {
 			const defValue = defaults[idx];
 			return {
 				type: this._getType(defValue),
@@ -226,6 +309,10 @@ class Tokenizer {
 				properties: [],
 			};
 		});
+		return {
+			argsString: betweenParens.trim(),
+			params,
+		};
 	}
 	_isReservedWord(word) {
 		return /^true|false|null|undefined$/.test(word);
