@@ -762,3 +762,17 @@ describe('Tokenizer._parseSignature', () => {
 		]);
 	});
 });
+describe('Tokenizer.getDocgenCode', () => {
+	it('should generate code for file with 1 function', () => {
+		const tokenizer = new Tokenizer();
+		const code = tokenizer.getDocgenCode(fixtureJs1Function);
+		expect(code).toMatch(/try/);
+		expect(code).toMatchSnapshot();
+	});
+	it('should generate code for file with 2 functions', () => {
+		const tokenizer = new Tokenizer();
+		const code = tokenizer.getDocgenCode(fixtureJs2Functions);
+		expect(code).toMatch(/try[\s\S]+try/);
+		expect(code).toMatchSnapshot();
+	});
+});
