@@ -4,6 +4,7 @@ exports[`JsRegexParser.extractBlocks should find 1 comment block 1`] = `
 Array [
   Object {
     "argsString": "bytes, precision = 'auto'",
+    "async": false,
     "canAddDocgen": true,
     "code": "export default function bytesToText(bytes, precision = 'auto')",
     "comment": "/**
@@ -14,8 +15,8 @@ Array [
  * @param {Number|String} precision  The decimal precision or \\"auto\\"
  * @returns {String}
  */",
-    "isAsync": false,
     "name": "bytesToText",
+    "static": null,
     "subtype": null,
     "type": "function",
   },
@@ -26,6 +27,7 @@ exports[`JsRegexParser.extractBlocks should find 2 comment blocks 1`] = `
 Array [
   Object {
     "argsString": "min, max",
+    "async": false,
     "canAddDocgen": true,
     "code": "export default function random(min, max)",
     "comment": "/**
@@ -34,13 +36,14 @@ Array [
  * @param {Number} max  The highest possible integer
  * @returns {Number}
  */",
-    "isAsync": false,
     "name": "random",
+    "static": null,
     "subtype": null,
     "type": "function",
   },
   Object {
     "argsString": "min, max",
+    "async": false,
     "canAddDocgen": true,
     "code": "random.float = function (min, max)",
     "comment": "/**
@@ -49,8 +52,8 @@ Array [
  * @param {Number} max  The highest possible value
  * @returns {Number}
  */",
-    "isAsync": false,
     "name": "random.float",
+    "static": true,
     "subtype": "variable",
     "type": "function",
   },

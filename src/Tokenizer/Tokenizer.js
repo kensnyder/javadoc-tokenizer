@@ -115,7 +115,7 @@ class Tokenizer {
 		}
 		// calculate the signature if applicable
 		if (final.type === 'function') {
-			const maybeAsync = block.isAsync ? 'async ' : '';
+			const maybeAsync = block.async ? 'async ' : '';
 			const argsString = block.argsString;
 			const returnType = final.returns.type || 'undefined';
 			final.signature = `${maybeAsync}${final.name}(${argsString}) ⇒ {${returnType}}`.trim();

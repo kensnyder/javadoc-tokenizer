@@ -18,8 +18,9 @@ describe('JsRegexParser.getContext', () => {
 			type: 'class',
 			subtype: null,
 			name: 'MyClass',
-			isAsync: null,
+			async: null,
 			argsString: null,
+			static: null,
 			canAddDocgen: false,
 		});
 	});
@@ -30,7 +31,8 @@ describe('JsRegexParser.getContext', () => {
 			type: 'function',
 			subtype: null,
 			name: '',
-			isAsync: false,
+			async: false,
+			static: null,
 			argsString: 'a',
 			canAddDocgen: false,
 		});
@@ -42,7 +44,8 @@ describe('JsRegexParser.getContext', () => {
 			type: 'function',
 			subtype: 'constructor',
 			name: 'constructor',
-			isAsync: false,
+			async: false,
+			static: false,
 			argsString: 'b = 2',
 			canAddDocgen: false,
 		});
@@ -54,7 +57,8 @@ describe('JsRegexParser.getContext', () => {
 			type: 'function',
 			subtype: null,
 			name: '',
-			isAsync: false,
+			async: false,
+			static: null,
 			argsString: 'c = "5"',
 			canAddDocgen: false,
 		});
@@ -68,7 +72,8 @@ describe('JsRegexParser.getContext', () => {
 			type: 'function',
 			subtype: null,
 			name: '',
-			isAsync: true,
+			async: true,
+			static: null,
 			argsString: 'd = {}',
 			canAddDocgen: false,
 		});
@@ -80,7 +85,8 @@ describe('JsRegexParser.getContext', () => {
 			type: 'function',
 			subtype: 'variable',
 			name: 'a',
-			isAsync: true,
+			async: true,
+			static: false,
 			argsString: 'e = []',
 			canAddDocgen: true,
 		});
@@ -92,7 +98,8 @@ describe('JsRegexParser.getContext', () => {
 			type: 'function',
 			subtype: 'variable',
 			name: 'a.b',
-			isAsync: false,
+			async: false,
+			static: true,
 			argsString: 'f = null',
 			canAddDocgen: true,
 		});
@@ -104,7 +111,34 @@ describe('JsRegexParser.getContext', () => {
 			type: 'function',
 			subtype: 'method',
 			name: 'method',
-			isAsync: true,
+			async: true,
+			static: false,
+			argsString: 'g = false',
+			canAddDocgen: false,
+		});
+	});
+	it('should find static class methods', () => {
+		const parser = new JsRegexParser();
+		const context = parser.getContext('static method(g = false) {');
+		expect(context).toEqual({
+			type: 'function',
+			subtype: 'method',
+			name: 'method',
+			async: false,
+			static: true,
+			argsString: 'g = false',
+			canAddDocgen: false,
+		});
+	});
+	it('should find async static class methods', () => {
+		const parser = new JsRegexParser();
+		const context = parser.getContext('static async method(g = false) {');
+		expect(context).toEqual({
+			type: 'function',
+			subtype: 'method',
+			name: 'method',
+			async: true,
+			static: true,
 			argsString: 'g = false',
 			canAddDocgen: false,
 		});
@@ -116,7 +150,8 @@ describe('JsRegexParser.getContext', () => {
 			type: 'function',
 			subtype: 'method',
 			name: 'method',
-			isAsync: true,
+			async: true,
+			static: false,
 			argsString: 'h = undefined',
 			canAddDocgen: false,
 		});
@@ -128,8 +163,9 @@ describe('JsRegexParser.getContext', () => {
 			type: 'variable',
 			subtype: 'property',
 			name: 'this.max',
-			isAsync: null,
+			async: null,
 			argsString: null,
+			static: null,
 			canAddDocgen: false,
 		});
 	});

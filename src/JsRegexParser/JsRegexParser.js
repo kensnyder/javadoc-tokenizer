@@ -28,7 +28,7 @@ class JsRegexParser {
 	 * @property {String} name  The identifier of the class, function or variable
 	 * @property {Object[]} [params]  The list of parameters the function had
 	 * @property {String} [argsString]  The string between a function's parenthesis
-	 * @property {Boolean} [isAsync]  True if the function is async
+	 * @property {Boolean} [async]  True if the function is async
 	 * @property {Boolean} canAddDocgen  True if adding __docgenInfo to the identifier will probably work
 	 */
 	getContext(code) {
@@ -45,7 +45,8 @@ class JsRegexParser {
 				type: 'class',
 				subtype: null,
 				name: match[1],
-				isAsync: null,
+				async: null,
+				static: null,
 				argsString: null,
 				canAddDocgen: false,
 			};
@@ -60,7 +61,8 @@ class JsRegexParser {
 				type: 'function',
 				subtype: null,
 				name: match[2] || '',
-				isAsync: !!match[1],
+				async: !!match[1],
+				static: null,
 				argsString: this._extractArgsString(code),
 				canAddDocgen: !!match[2],
 			};
@@ -75,7 +77,8 @@ class JsRegexParser {
 				type: 'function',
 				subtype: 'variable',
 				name: match[1],
-				isAsync: !!match[3],
+				async: !!match[3],
+				static: /\./.test(match[1]),
 				argsString: this._extractArgsString(code),
 				canAddDocgen: true,
 			};
@@ -88,7 +91,8 @@ class JsRegexParser {
 				type: 'function',
 				subtype: 'constructor',
 				name: 'constructor',
-				isAsync: false,
+				async: false,
+				static: false,
 				argsString: this._extractArgsString(code),
 				canAddDocgen: false,
 			};
@@ -101,20 +105,25 @@ class JsRegexParser {
 				type: 'function',
 				subtype: 'method',
 				name: match[1],
-				isAsync: !!match[2],
+				async: !!match[2],
+				static: false,
 				argsString: this._extractArgsString(code),
 				canAddDocgen: false,
 			};
 		}
+		// Class methods can be "async", "static", "async static" or "static async"
 		// $1    $2     $3
 		// async method(args) {
-		match = code.match(/^(async\s+)?([$a-zA-Z_][$\w_]*)[\s\S]+?\)/);
+		match = code.match(
+			/^((?:async\s+static|static\s+async|async|static)\s+)?([$a-zA-Z_][$\w_]*)[\s\S]+?\)/
+		);
 		if (match) {
 			return {
 				type: 'function',
 				subtype: 'method',
 				name: match[2],
-				isAsync: !!match[1],
+				async: /async/.test(match[1]),
+				static: /static/.test(match[1]),
 				argsString: this._extractArgsString(code),
 				canAddDocgen: false,
 			};
@@ -127,7 +136,8 @@ class JsRegexParser {
 				type: 'variable',
 				subtype: 'property',
 				name: match[1],
-				isAsync: null,
+				async: null,
+				static: null,
 				argsString: null,
 				canAddDocgen: false,
 			};
