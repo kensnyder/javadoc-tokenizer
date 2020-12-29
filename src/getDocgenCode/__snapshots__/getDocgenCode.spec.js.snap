@@ -1,42 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Tokenizer.getDocgenCode should generate code for file with 1 function 1`] = `
+exports[`getDocgenCode() should generate code for file with one function 1`] = `
 "
 try {
   bytesToText.__docgenInfo = {
   \\"displayName\\": \\"bytesToText\\",
   \\"description\\": \\"Convert numeric bytes to a rounded number with label\\",
-  \\"props\\": [
-    {
+  \\"props\\": {
+    \\"bytes\\": {
       \\"description\\": \\"The number of bytes\\",
       \\"required\\": true,
       \\"type\\": {
         \\"name\\": \\"Number\\"
       }
     },
-    {
+    \\"precision\\": {
       \\"description\\": \\"The decimal precision or \\\\\\"auto\\\\\\"\\",
       \\"required\\": true,
       \\"type\\": {
         \\"name\\": \\"Number|String\\"
       }
     }
-  ],
+  },
   \\"javadoc\\": {
-    \\"ignore\\": false,
     \\"name\\": \\"bytesToText\\",
+    \\"signature\\": \\"bytesToText(bytes, precision = 'auto') ⇒ {String}\\",
     \\"description\\": \\"Convert numeric bytes to a rounded number with label\\",
-    \\"access\\": \\"public\\",
-    \\"chainable\\": null,
-    \\"deprecated\\": null,
-    \\"examples\\": [
-      {
-        \\"language\\": \\"js\\",
-        \\"description\\": \\"\\",
-        \\"type\\": \\"javadoc\\",
-        \\"text\\": \\"bytesToText(23 * 1024 + 35); // 23.4 KB\\"
-      }
-    ],
     \\"params\\": [
       {
         \\"type\\": \\"Number\\",
@@ -58,51 +47,59 @@ try {
       \\"description\\": \\"\\",
       \\"properties\\": []
     },
+    \\"throws\\": [],
+    \\"examples\\": [
+      {
+        \\"language\\": \\"js\\",
+        \\"description\\": \\"\\",
+        \\"type\\": \\"javadoc\\",
+        \\"text\\": \\"bytesToText(23 * 1024 + 35); // 23.4 KB\\"
+      }
+    ],
+    \\"access\\": \\"public\\",
+    \\"chainable\\": null,
+    \\"deprecated\\": null,
     \\"version\\": null,
     \\"since\\": null,
     \\"todos\\": [],
     \\"see\\": [],
-    \\"throws\\": [],
     \\"customTags\\": [],
     \\"type\\": \\"function\\",
     \\"subtype\\": null,
-    \\"canAddDocgen\\": true,
-    \\"signature\\": \\"bytesToText(bytes, precision = 'auto') ⇒ {String}\\"
+    \\"ignore\\": false,
+    \\"contextCode\\": \\"export default function bytesToText(bytes, precision = 'auto')\\",
+    \\"canAddDocgen\\": true
   }
 };
 } catch (e) {}"
 `;
 
-exports[`Tokenizer.getDocgenCode should generate code for file with 2 functions 1`] = `
+exports[`getDocgenCode() should generate code for file with two functions 1`] = `
 "
 try {
   random.__docgenInfo = {
   \\"displayName\\": \\"random\\",
   \\"description\\": \\"Return a random integer between min and max inclusive\\",
-  \\"props\\": [
-    {
+  \\"props\\": {
+    \\"min\\": {
       \\"description\\": \\"The lowest possible integer\\",
       \\"required\\": true,
       \\"type\\": {
         \\"name\\": \\"Number\\"
       }
     },
-    {
+    \\"max\\": {
       \\"description\\": \\"The highest possible integer\\",
       \\"required\\": true,
       \\"type\\": {
         \\"name\\": \\"Number\\"
       }
     }
-  ],
+  },
   \\"javadoc\\": {
-    \\"ignore\\": false,
     \\"name\\": \\"random\\",
+    \\"signature\\": \\"random(min, max) ⇒ {Number}\\",
     \\"description\\": \\"Return a random integer between min and max inclusive\\",
-    \\"access\\": \\"public\\",
-    \\"chainable\\": null,
-    \\"deprecated\\": null,
-    \\"examples\\": [],
     \\"params\\": [
       {
         \\"type\\": \\"Number\\",
@@ -124,16 +121,21 @@ try {
       \\"description\\": \\"\\",
       \\"properties\\": []
     },
+    \\"throws\\": [],
+    \\"examples\\": [],
+    \\"access\\": \\"public\\",
+    \\"chainable\\": null,
+    \\"deprecated\\": null,
     \\"version\\": null,
     \\"since\\": null,
     \\"todos\\": [],
     \\"see\\": [],
-    \\"throws\\": [],
     \\"customTags\\": [],
     \\"type\\": \\"function\\",
     \\"subtype\\": null,
-    \\"canAddDocgen\\": true,
-    \\"signature\\": \\"random(min, max) ⇒ {Number}\\"
+    \\"ignore\\": false,
+    \\"contextCode\\": \\"export default function random(min, max)\\",
+    \\"canAddDocgen\\": true
   }
 };
 } catch (e) {}
@@ -142,30 +144,26 @@ try {
   random.float.__docgenInfo = {
   \\"displayName\\": \\"random.float\\",
   \\"description\\": \\"Return a random float between min and max exclusive\\",
-  \\"props\\": [
-    {
+  \\"props\\": {
+    \\"min\\": {
       \\"description\\": \\"The lowest possible value\\",
       \\"required\\": true,
       \\"type\\": {
         \\"name\\": \\"Number\\"
       }
     },
-    {
+    \\"max\\": {
       \\"description\\": \\"The highest possible value\\",
       \\"required\\": true,
       \\"type\\": {
         \\"name\\": \\"Number\\"
       }
     }
-  ],
+  },
   \\"javadoc\\": {
-    \\"ignore\\": false,
     \\"name\\": \\"random.float\\",
+    \\"signature\\": \\"random.float(min, max) ⇒ {Number}\\",
     \\"description\\": \\"Return a random float between min and max exclusive\\",
-    \\"access\\": \\"public\\",
-    \\"chainable\\": null,
-    \\"deprecated\\": null,
-    \\"examples\\": [],
     \\"params\\": [
       {
         \\"type\\": \\"Number\\",
@@ -187,16 +185,21 @@ try {
       \\"description\\": \\"\\",
       \\"properties\\": []
     },
+    \\"throws\\": [],
+    \\"examples\\": [],
+    \\"access\\": \\"public\\",
+    \\"chainable\\": null,
+    \\"deprecated\\": null,
     \\"version\\": null,
     \\"since\\": null,
     \\"todos\\": [],
     \\"see\\": [],
-    \\"throws\\": [],
     \\"customTags\\": [],
     \\"type\\": \\"function\\",
     \\"subtype\\": \\"variable\\",
-    \\"canAddDocgen\\": true,
-    \\"signature\\": \\"random.float(min, max) ⇒ {Number}\\"
+    \\"ignore\\": false,
+    \\"contextCode\\": \\"random.float = function (min, max)\\",
+    \\"canAddDocgen\\": true
   }
 };
 } catch (e) {}"

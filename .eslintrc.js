@@ -4,4 +4,8 @@ const OFF = 0,
 
 module.exports = {
 	extends: ['prettier'],
+	env: {
+		node: true,
+		es6: true
+	},
 };

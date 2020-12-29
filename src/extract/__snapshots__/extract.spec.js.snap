@@ -1,0 +1,147 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`extract() should parse a function with one function 1`] = `
+Array [
+  Object {
+    "access": "public",
+    "canAddDocgen": true,
+    "chainable": null,
+    "contextCode": "export default function bytesToText(bytes, precision = 'auto')",
+    "customTags": Array [],
+    "deprecated": null,
+    "description": "Convert numeric bytes to a rounded number with label",
+    "examples": Array [
+      Object {
+        "description": "",
+        "language": "js",
+        "text": "bytesToText(23 * 1024 + 35); // 23.4 KB",
+        "type": "javadoc",
+      },
+    ],
+    "ignore": false,
+    "name": "bytesToText",
+    "params": Array [
+      Object {
+        "default": undefined,
+        "description": "The number of bytes",
+        "name": "bytes",
+        "properties": Array [],
+        "required": true,
+        "type": "Number",
+      },
+      Object {
+        "default": undefined,
+        "description": "The decimal precision or \\"auto\\"",
+        "name": "precision",
+        "properties": Array [],
+        "required": true,
+        "type": "Number|String",
+      },
+    ],
+    "returns": Object {
+      "description": "",
+      "properties": Array [],
+      "type": "String",
+    },
+    "see": Array [],
+    "signature": "bytesToText(bytes, precision = 'auto') ⇒ {String}",
+    "since": null,
+    "subtype": null,
+    "throws": Array [],
+    "todos": Array [],
+    "type": "function",
+    "version": null,
+  },
+]
+`;
+
+exports[`extract() should parse a function with two functions 1`] = `
+Array [
+  Object {
+    "access": "public",
+    "canAddDocgen": true,
+    "chainable": null,
+    "contextCode": "export default function random(min, max)",
+    "customTags": Array [],
+    "deprecated": null,
+    "description": "Return a random integer between min and max inclusive",
+    "examples": Array [],
+    "ignore": false,
+    "name": "random",
+    "params": Array [
+      Object {
+        "default": undefined,
+        "description": "The lowest possible integer",
+        "name": "min",
+        "properties": Array [],
+        "required": true,
+        "type": "Number",
+      },
+      Object {
+        "default": undefined,
+        "description": "The highest possible integer",
+        "name": "max",
+        "properties": Array [],
+        "required": true,
+        "type": "Number",
+      },
+    ],
+    "returns": Object {
+      "description": "",
+      "properties": Array [],
+      "type": "Number",
+    },
+    "see": Array [],
+    "signature": "random(min, max) ⇒ {Number}",
+    "since": null,
+    "subtype": null,
+    "throws": Array [],
+    "todos": Array [],
+    "type": "function",
+    "version": null,
+  },
+  Object {
+    "access": "public",
+    "canAddDocgen": true,
+    "chainable": null,
+    "contextCode": "random.float = function (min, max)",
+    "customTags": Array [],
+    "deprecated": null,
+    "description": "Return a random float between min and max exclusive",
+    "examples": Array [],
+    "ignore": false,
+    "name": "random.float",
+    "params": Array [
+      Object {
+        "default": undefined,
+        "description": "The lowest possible value",
+        "name": "min",
+        "properties": Array [],
+        "required": true,
+        "type": "Number",
+      },
+      Object {
+        "default": undefined,
+        "description": "The highest possible value",
+        "name": "max",
+        "properties": Array [],
+        "required": true,
+        "type": "Number",
+      },
+    ],
+    "returns": Object {
+      "description": "",
+      "properties": Array [],
+      "type": "Number",
+    },
+    "see": Array [],
+    "signature": "random.float(min, max) ⇒ {Number}",
+    "since": null,
+    "subtype": "variable",
+    "throws": Array [],
+    "todos": Array [],
+    "type": "function",
+    "version": null,
+  },
+]
+`;

@@ -5,186 +5,9 @@ const parseComment = require('tokenize-comment');
  */
 class Tokenizer {
 	/**
-	 * Currently, the only language supported is "js"
-	 * @param [language="js"]
-	 */
-	constructor(language = 'js') {
-		this.language = language;
-	}
-
-	/**
-	 * Look through a source file and pick out all the comment blocks
-	 * @param {String} fileSrc  The sourcecode of a file
-	 * @returns {Object[]}
-	 * @see this.getContext() for properties returned
-	 */
-	scanSource(fileSrc) {
-		const matchComment = /(\/\*\*[\s\S]+?\*\/)\s*([^;){]+[;){])/g;
-		const blocks = [];
-		fileSrc.replace(matchComment, ($0, comment, code) => {
-			blocks.push({
-				comment,
-				...this.getContext(code),
-			});
-		});
-		return blocks;
-	}
-
-	/**
-	 * Given the code immediately following a comment block, get context about it
-	 * @param {String} code  The sourcecode
-	 * @returns {Object}
-	 * @property {String} comment  The whole comment text
-	 * @property {String} type  The type of match (one of "class", "function" or "variable")
-	 * @property {String|null} subtype  The secondary type if applicable (one of "constructor", "method", "variable" or "property")
-	 * @property {String} name  The identifier of the class, function or variable
-	 * @property {Object[]} [params]  The list of parameters the function had
-	 * @property {String} [argsString]  The string between a function's parenthesis
-	 * @property {Boolean} [isAsync]  True if the function is async
-	 * @property {Boolean} canAddDocgen  True if adding __docgenInfo to the identifier will probably work
-	 */
-	getContext(code) {
-		let match;
-		// these regexes are specific to JavaScript
-		match = code.match(
-			//                      $1
-			// export default class MyClass
-			/^(?:|export |export default )class\s+([$a-zA-Z_][$\w_]*) /
-		);
-		if (match) {
-			return {
-				type: 'class',
-				subtype: null,
-				name: match[1],
-				params: null,
-				canAddDocgen: false,
-			};
-		}
-		match = code.match(
-			//                $1             $2
-			// export default async function foo
-			/^(?:|export\s+|export default\s+)(async\s+)?function\s*([$a-zA-Z_][$\w_]*)?/
-		);
-		if (match) {
-			const { argsString, params } = this._parseSignature(code);
-			return {
-				type: 'function',
-				subtype: null,
-				name: match[2] || '',
-				params,
-				argsString,
-				isAsync: !!match[1],
-				canAddDocgen: !!match[2],
-			};
-		}
-		// $1     $2 $3
-		// foo.bar = async function
-		match = code.match(/([$a-zA-Z_][$\w_.]*)\s*(=)\s*(async )?function/);
-		if (match) {
-			const { argsString, params } = this._parseSignature(code);
-			return {
-				type: 'function',
-				subtype: 'variable',
-				name: match[1],
-				params,
-				argsString,
-				isAsync: !!match[3],
-				canAddDocgen: true,
-			};
-		}
-		// $1
-		// constructor(
-		match = code.match(/^constructor\s*\(/);
-		if (match) {
-			const { argsString, params } = this._parseSignature(code);
-			return {
-				type: 'function',
-				subtype: 'constructor',
-				name: 'constructor',
-				params,
-				argsString,
-				canAddDocgen: false,
-			};
-		}
-		// $1    $2
-		// async method(args) {
-		match = code.match(/^(async\s+)?([$a-zA-Z_][$\w_]*)[\s\S]+?\)\s*{$/);
-		if (match) {
-			const { argsString, params } = this._parseSignature(code);
-			return {
-				type: 'function',
-				subtype: 'method',
-				name: match[2],
-				params,
-				argsString,
-				isAsync: !!match[1],
-				canAddDocgen: false,
-			};
-		}
-		// $1      $2
-		// method: async (args) => {
-		match = code.match(/^([$a-zA-Z_][$\w_]*)\s*:\s*(async\s+)?\(.*\)\s*=>/);
-		if (match) {
-			const { argsString, params } = this._parseSignature(code);
-			return {
-				type: 'function',
-				subtype: 'method',
-				name: match[1],
-				params,
-				argsString,
-				isAsync: !!match[2],
-				canAddDocgen: false,
-			};
-		}
-		//      $1
-		// this.something
-		match = code.match(/^(this\.[$a-zA-Z_][$\w_]*)/);
-		if (match) {
-			return {
-				type: 'variable',
-				subtype: 'property',
-				name: match[1],
-				canAddDocgen: false,
-			};
-		}
-		return {};
-	}
-
-	/**
-	 * Given a file's source code, get try-catch code that will attempt to attach
-	 * __docgenInfo properties where possible
-	 * @param {String} fileSrc  The source code
-	 * @returns {String}
-	 */
-	getDocgenCode(fileSrc) {
-		const tryCatches = [];
-		this.scanSource(fileSrc).map(block => {
-			const tokenized = this.tokenizeBlock(block);
-			if (!tokenized.canAddDocgen || tokenized.ignore) {
-				return;
-			}
-			const info = {
-				displayName: tokenized.name,
-				description: tokenized.description,
-				props: tokenized.params.map(param => ({
-					description: param.description,
-					required: param.required,
-					type: { name: param.type || 'undefined' },
-				})),
-				javadoc: tokenized,
-			};
-			const stringified = JSON.stringify(info, null, 2);
-			tryCatches.push(`
-try {
-  ${tokenized.name}.__docgenInfo = ${stringified};
-} catch (e) {}`);
-		});
-		return tryCatches.join('\n');
-	}
-
-	/**
 	 * Tokenize a comment along with it's next line of code
-	 * @param {String} commentAndCode  The comment followed by one line of sourcecode
+	 * @param {Object} block  The block extracted by the parser
+	 * @property {String} name  The function name
 	 * @returns {Object}  All the details
 	 * @property {Boolean} ignore  True if an @ignore tag is present
 	 * @property {String} name  The identifier
@@ -204,33 +27,34 @@ try {
 	 * @property {String} type  The data type
 	 * @property {String|undefined} subtype  The data sub type
 	 * @property {Boolean} canAddDocgen  True if adding __docgenInfo to the identifier will probably work
-	 * @todo Support @var and nested properties
 	 */
-	tokenizeBlock(commentAndCode) {
-		const base = parseComment(commentAndCode.comment);
+	tokenizeBlock(block) {
+		const base = parseComment(block.comment);
 		const final = {
-			ignore: false,
-			name: commentAndCode.name,
+			name: block.name,
+			signature: null,
 			description: base.description,
-			access: null,
-			chainable: null,
-			deprecated: null,
-			examples: this._formatExamples(base.examples),
 			params: [],
 			returns: {
 				type: undefined,
 				description: '',
 				properties: [],
 			},
+			throws: [],
+			examples: this._formatExamples(base.examples),
+			access: null,
+			chainable: null,
+			deprecated: null,
 			version: null,
 			since: null,
 			todos: [],
 			see: [],
-			throws: [],
 			customTags: [],
-			type: commentAndCode.type,
-			subtype: commentAndCode.subtype,
-			canAddDocgen: commentAndCode.canAddDocgen,
+			type: block.type,
+			subtype: block.subtype,
+			ignore: false,
+			contextCode: block.code,
+			canAddDocgen: block.canAddDocgen,
 		};
 		let lastProperties;
 		for (const tag of base.tags) {
@@ -238,6 +62,8 @@ try {
 				final.access = tag.key;
 			} else if (tag.key.match(/^api|access$/)) {
 				final.access = tag.value;
+			} else if (tag.key.match(/^var|name$/)) {
+				final.name = tag.value;
 			} else if (tag.key.match(/^desc(ription)?$/)) {
 				if (final.description) {
 					final.description += '\n' + tag.value;
@@ -268,10 +94,8 @@ try {
 				lastProperties = param.properties;
 			} else if (tag.key === 'property') {
 				if (lastProperties) {
-					// We don't support properties that have properties
-					// so remove the properties key
-					const { properties, ...converted } = this._convertParamTag(tag);
-					lastProperties.push({ ...converted });
+					const converted = this._convertParamTag(tag);
+					lastProperties.push(converted);
 				}
 			} else if (tag.key.match(/^returns?$/)) {
 				const value = this._convertTypedTag(tag);
@@ -285,18 +109,14 @@ try {
 				});
 			}
 		}
-		// handle implicit params
-		if (final.params.length === 0) {
-			final.params = commentAndCode.params;
-		}
 		// get implied access
 		if (final.access === null) {
-			final.access = final.name.match(/^_/) ? 'private' : 'public';
+			final.access = String(final.name).match(/^_/) ? 'private' : 'public';
 		}
 		// calculate the signature if applicable
 		if (final.type === 'function') {
-			const maybeAsync = commentAndCode.isAsync ? 'async ' : '';
-			const argsString = commentAndCode.argsString;
+			const maybeAsync = block.isAsync ? 'async ' : '';
+			const argsString = block.argsString;
 			const returnType = final.returns.type || 'undefined';
 			final.signature = `${maybeAsync}${final.name}(${argsString}) ⇒ {${returnType}}`.trim();
 		}
@@ -339,15 +159,64 @@ try {
 			// {Type} paramName  Description
 			data.value.match(/^(?:{([^}]+)}\s+)?([\w_[\]='"]+)?(\s+.+)?$/) || [];
 		const [, nameWithoutBrackets, defValue] =
-			(name || '').match(/^\[(.+?)(?:=(.+))]$/) || [];
+			//  $1   $2
+			// [name=default]
+			(name || '').match(/^\[(.+?)(?:=(.+))?]$/) || [];
 		return {
 			type: type ? this._normalizeType(type) : undefined,
 			name: nameWithoutBrackets || name,
 			description: this._normalizeWhitespace(description),
 			required: !/^\[/.test(name) || /^\?/.test(type),
-			default: defValue,
+			default: this._castValue(defValue),
 			properties: [],
 		};
+	}
+
+	/**
+	 * Attempt to eval the default value
+	 * @param {*} value
+	 * @returns {*}
+	 * @private
+	 */
+	_castValue(value) {
+		if (typeof value !== 'string') {
+			return value;
+		}
+		let match;
+		// int/float
+		match = value.match(/^[\d.]+$/);
+		if (match) {
+			const number = parseFloat(value);
+			return isNaN(number) ? value : number;
+		}
+		// boolean
+		match = value.match(/^true|false$/);
+		if (match) {
+			return match[0] === 'true';
+		}
+		// null
+		if (value === 'null') {
+			return null;
+		}
+		// undefined
+		if (value === 'undefined') {
+			return undefined;
+		}
+		// string
+		match = value.match(/^(["'])(.?)\1$/);
+		if (match) {
+			return match[2];
+		}
+		// array/object
+		match = value.match(/^([\[{])(.?)\1$/);
+		if (match) {
+			try {
+				return JSON.parse(value);
+			} catch (e) {
+				return value;
+			}
+		}
+		return value;
 	}
 
 	/**
@@ -369,86 +238,6 @@ try {
 			description: this._normalizeWhitespace(description.trim()),
 			properties: [],
 		};
-	}
-
-	/**
-	 * Parse a code signature to pull out the arg string and params
-	 * @param {String} signature  The code signature
-	 * @example "export default function round(number, precision = 0) {"
-	 * @returns {Object}
-	 * @property {String} argsString  The string between the parenthesis
-	 * @property {Object[]} params  Params object with type, name, description, required, default, properties
-	 * @private
-	 */
-	_parseSignature(signature) {
-		const [, betweenParens] = signature.match(/.*?\(([\s\S]*)\)/) || [];
-		if (!betweenParens) {
-			return { argsString: '', params: [] };
-		}
-		const argNames = [];
-		const hasEquals = [];
-		let i = 0;
-		betweenParens.replace(/([$a-z_]+[$\w_]*)\s*($|,|=)/gi, ($0, key, sep) => {
-			if (!this._isReservedWord(key)) {
-				hasEquals[i++] = sep === '=';
-				argNames.push(key);
-			}
-		});
-		const code = `(function() {
-	with ({
-	  ${argNames.map(name => `${name}: undefined`).join(',\n')}	  	
-	}) {
-	  return [${betweenParens}];
-	}
-})();	
-`;
-		// (1, eval) is indirect eval. It is used her to avoid strict mode errors
-		// because "with" is not allowed in strict mode code
-		const defaults = (1, eval)(code);
-		const params = argNames.map((name, idx) => {
-			const defValue = defaults[idx];
-			return {
-				type: this._getType(defValue),
-				name,
-				description: '',
-				required: !hasEquals[idx],
-				default: defValue,
-				properties: [],
-			};
-		});
-		return {
-			argsString: betweenParens.trim(),
-			params,
-		};
-	}
-
-	/**
-	 * Check if the given text is a reserved word in JavaScript
-	 * @param {String} word  The string to check
-	 * @returns {Boolean}
-	 * @private
-	 */
-	_isReservedWord(word) {
-		return /^true|false|null|undefined$/.test(word);
-	}
-
-	/**
-	 * Given the data type of the given value (where null returns "null")
-	 * @param {*} value  Any value
-	 * @returns {string|undefined}
-	 * @private
-	 */
-	_getType(value) {
-		if (value === null) {
-			return 'null';
-		} else if (value === undefined) {
-			return undefined;
-		} else if (Array.isArray(value)) {
-			return 'Array';
-		}
-		// capitalize others
-		const type = typeof value;
-		return type.slice(0, 1).toUpperCase() + type.slice(1);
 	}
 
 	/**

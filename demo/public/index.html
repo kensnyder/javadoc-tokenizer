@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+		/>
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<link rel="icon" type="image/x-icon" href="/favicon.png" />
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/prismjs@1.22.0/themes/prism-tomorrow.css"
+		/>
+		<link rel="stylesheet" href="main.css" />
+		<title>Demo: javadoc-tokenizer</title>
+	</head>
+	<body>
+		<main>
+			<h1>Demo: javadoc-tokenizer</h1>
+			<div class="input-output">
+				<textarea class="input" placeholder="Paste code here"></textarea>
+				<pre class="output"><code class="language-json"></code></pre>
+			</div>
+			<button class="submit">Tokenize</button>
+		</main>
+		<script
+			src="https://cdn.jsdelivr.net/npm/prismjs@1.22.0/components/prism-core.js"
+			data-manual
+		></script>
+		<script src="https://cdn.jsdelivr.net/npm/prismjs@1.22.0/components/prism-json.js"></script>
+		<script src="main.js"></script>
+		<script>
+			setupDemo(
+				document.querySelector('.input'),
+				document.querySelector('.output'),
+				document.querySelector('.submit')
+			);
+		</script>
+	</body>
+</html>

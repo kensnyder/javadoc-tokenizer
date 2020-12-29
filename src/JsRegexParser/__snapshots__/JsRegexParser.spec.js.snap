@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`JsRegexParser.extractBlocks should find 1 comment block 1`] = `
+Array [
+  Object {
+    "argsString": "bytes, precision = 'auto'",
+    "canAddDocgen": true,
+    "code": "export default function bytesToText(bytes, precision = 'auto')",
+    "comment": "/**
+ * Convert numeric bytes to a rounded number with label
+ * @example
+ * bytesToText(23 * 1024 + 35); // 23.4 KB
+ * @param {Number} bytes  The number of bytes
+ * @param {Number|String} precision  The decimal precision or \\"auto\\"
+ * @returns {String}
+ */",
+    "isAsync": false,
+    "name": "bytesToText",
+    "subtype": null,
+    "type": "function",
+  },
+]
+`;
+
+exports[`JsRegexParser.extractBlocks should find 2 comment blocks 1`] = `
+Array [
+  Object {
+    "argsString": "min, max",
+    "canAddDocgen": true,
+    "code": "export default function random(min, max)",
+    "comment": "/**
+ * Return a random integer between min and max inclusive
+ * @param {Number} min  The lowest possible integer
+ * @param {Number} max  The highest possible integer
+ * @returns {Number}
+ */",
+    "isAsync": false,
+    "name": "random",
+    "subtype": null,
+    "type": "function",
+  },
+  Object {
+    "argsString": "min, max",
+    "canAddDocgen": true,
+    "code": "random.float = function (min, max)",
+    "comment": "/**
+ * Return a random float between min and max exclusive
+ * @param {Number} min  The lowest possible value
+ * @param {Number} max  The highest possible value
+ * @returns {Number}
+ */",
+    "isAsync": false,
+    "name": "random.float",
+    "subtype": "variable",
+    "type": "function",
+  },
+]
+`;
