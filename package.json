@@ -1,6 +1,6 @@
 {
   "name": "javadoc-tokenizer",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Tokenize source code documentation",
   "tags": [
     "jsdoc",
@@ -35,7 +35,7 @@
   "devDependencies": {
     "@hapi/hapi": "^20.0.3",
     "@hapi/inert": "^6.0.3",
-    "eslint": "^7.2.0",
+    "eslint": "^7.18.0",
     "eslint-config-prettier": "^7.1.0",
     "jest": "^26.6.3",
     "prettier": "^2.2.1",

@@ -1,8 +1,8 @@
 # javadoc-tokenizer
 
-[![Build Status](https://travis-ci.org/kensnyder/javadoc-tokenizer.svg?branch=master&v=0.9.0)](https://travis-ci.org/kensnyder/javadoc-tokenizer)
-[![Code Coverage](https://codecov.io/gh/kensnyder/javadoc-tokenizer/branch/master/graph/badge.svg?v=0.9.0)](https://codecov.io/gh/kensnyder/javadoc-tokenizer)
-[![ISC License](https://img.shields.io/npm/l/javadoc-tokenizer.svg?v=0.9.0)](https://opensource.org/licenses/ISC)
+[![Build Status](https://travis-ci.com/kensnyder/javadoc-tokenizer.svg?branch=master&v=0.9.1)](https://travis-ci.com/kensnyder/javadoc-tokenizer)
+[![Code Coverage](https://codecov.io/gh/kensnyder/javadoc-tokenizer/branch/master/graph/badge.svg?v=0.9.1)](https://codecov.io/gh/kensnyder/javadoc-tokenizer)
+[![ISC License](https://img.shields.io/npm/l/javadoc-tokenizer.svg?v=0.9.1)](https://opensource.org/licenses/ISC)
 
 Tokenize source code documentation created to document non-component functions
 in StoryBook.js. StoryBook generates component documentations by adding a
