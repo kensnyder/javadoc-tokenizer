@@ -1,6 +1,6 @@
 {
   "name": "javadoc-tokenizer",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "description": "Tokenize source code documentation",
   "tags": [
     "jsdoc",
@@ -15,6 +15,8 @@
   "scripts": {
     "test": "npx jest",
     "watch": "npx jest --watch",
+    "coverage": "npx jest --collectCoverage",
+    "view-coverage": "open ./coverage/lcov-report/index.html",
     "start": "node ./demo/server.js"
   },
   "repository": {

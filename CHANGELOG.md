@@ -1,5 +1,5 @@
 ## Change Log
 
-### v1.0.0 on 20XX-XX-XX
+### v1.0.0 on 2021-01-17
 
 - Initial release
