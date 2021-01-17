@@ -134,6 +134,9 @@ class Tokenizer {
 	 * @private
 	 */
 	_formatExamples(examples) {
+		if (!Array.isArray(examples)) {
+			return [];
+		}
 		return examples.map(example => ({
 			language: example.language || 'js',
 			description: example.description.trim(),
