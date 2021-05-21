@@ -1,5 +1,89 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`getDocgenCode() should generate code a function with default params 1`] = `
+"
+try {
+  visitUrl.__docgenInfo = {
+  \\"displayName\\": \\"visitUrl\\",
+  \\"description\\": \\"Convert numeric bytes to a rounded number with label\\",
+  \\"props\\": {
+    \\"url\\": {
+      \\"description\\": \\"The URL to visit\\",
+      \\"required\\": false,
+      \\"type\\": {
+        \\"name\\": \\"String\\"
+      },
+      \\"defaultValue\\": {
+        \\"value\\": \\"window.location.href\\",
+        \\"computed\\": false
+      }
+    },
+    \\"delay\\": {
+      \\"description\\": \\"The delay before visiting\\",
+      \\"required\\": false,
+      \\"type\\": {
+        \\"name\\": \\"Number\\"
+      },
+      \\"defaultValue\\": {
+        \\"value\\": 5000,
+        \\"computed\\": false
+      }
+    }
+  },
+  \\"javadoc\\": {
+    \\"name\\": \\"visitUrl\\",
+    \\"signature\\": \\"visitUrl(url = window.location.href, delay = 5000) ⇒ {String}\\",
+    \\"description\\": \\"Convert numeric bytes to a rounded number with label\\",
+    \\"params\\": [
+      {
+        \\"type\\": \\"String\\",
+        \\"name\\": \\"url\\",
+        \\"description\\": \\"The URL to visit\\",
+        \\"required\\": false,
+        \\"default\\": \\"window.location.href\\",
+        \\"properties\\": []
+      },
+      {
+        \\"type\\": \\"Number\\",
+        \\"name\\": \\"delay\\",
+        \\"description\\": \\"The delay before visiting\\",
+        \\"required\\": false,
+        \\"default\\": 5000,
+        \\"properties\\": []
+      }
+    ],
+    \\"returns\\": {
+      \\"type\\": \\"String\\",
+      \\"description\\": \\"\\",
+      \\"properties\\": []
+    },
+    \\"throws\\": [],
+    \\"examples\\": [
+      {
+        \\"language\\": \\"js\\",
+        \\"description\\": \\"\\",
+        \\"type\\": \\"javadoc\\",
+        \\"text\\": \\"visitUrl('/', 3000) // visit URL after 3 seconds\\"
+      }
+    ],
+    \\"access\\": \\"public\\",
+    \\"chainable\\": null,
+    \\"deprecated\\": null,
+    \\"version\\": null,
+    \\"since\\": null,
+    \\"todos\\": [],
+    \\"see\\": [],
+    \\"customTags\\": [],
+    \\"type\\": \\"function\\",
+    \\"subtype\\": null,
+    \\"ignore\\": false,
+    \\"contextCode\\": \\"export default function visitUrl(url = window.location.href, delay = 5000)\\",
+    \\"canAddDocgen\\": true
+  }
+};
+} catch (e) {}"
+`;
+
 exports[`getDocgenCode() should generate code for file with one function 1`] = `
 "
 try {
@@ -12,6 +96,9 @@ try {
       \\"required\\": true,
       \\"type\\": {
         \\"name\\": \\"Number\\"
+      },
+      \\"defaultValue\\": {
+        \\"computed\\": false
       }
     },
     \\"precision\\": {
@@ -19,6 +106,9 @@ try {
       \\"required\\": true,
       \\"type\\": {
         \\"name\\": \\"Number|String\\"
+      },
+      \\"defaultValue\\": {
+        \\"computed\\": false
       }
     }
   },
@@ -86,6 +176,9 @@ try {
       \\"required\\": true,
       \\"type\\": {
         \\"name\\": \\"Number\\"
+      },
+      \\"defaultValue\\": {
+        \\"computed\\": false
       }
     },
     \\"max\\": {
@@ -93,6 +186,9 @@ try {
       \\"required\\": true,
       \\"type\\": {
         \\"name\\": \\"Number\\"
+      },
+      \\"defaultValue\\": {
+        \\"computed\\": false
       }
     }
   },
@@ -150,6 +246,9 @@ try {
       \\"required\\": true,
       \\"type\\": {
         \\"name\\": \\"Number\\"
+      },
+      \\"defaultValue\\": {
+        \\"computed\\": false
       }
     },
     \\"max\\": {
@@ -157,6 +256,9 @@ try {
       \\"required\\": true,
       \\"type\\": {
         \\"name\\": \\"Number\\"
+      },
+      \\"defaultValue\\": {
+        \\"computed\\": false
       }
     }
   },

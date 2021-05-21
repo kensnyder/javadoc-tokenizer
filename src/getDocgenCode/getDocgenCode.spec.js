@@ -8,6 +8,10 @@ const fixtureJs2Functions = fs.readFileSync(
 	`${__dirname}/../../test-fixtures/js-2-functions.js`,
 	'utf8'
 );
+const fixtureJsParamDefaults = fs.readFileSync(
+	`${__dirname}/../../test-fixtures/js-param-defaults.js`,
+	'utf8'
+);
 
 describe('getDocgenCode()', () => {
 	it('should generate code for file with one function', () => {
@@ -18,6 +22,11 @@ describe('getDocgenCode()', () => {
 	it('should generate code for file with two functions', () => {
 		const code = getDocgenCode(fixtureJs2Functions);
 		expect(code).toMatch(/try[\s\S]+try/);
+		expect(code).toMatchSnapshot();
+	});
+	it('should generate code a function with default params', () => {
+		const code = getDocgenCode(fixtureJsParamDefaults);
+		expect(code).toMatch(/try/);
 		expect(code).toMatchSnapshot();
 	});
 });

@@ -1,5 +1,4 @@
 const JsRegexParser = require('./JsRegexParser.js');
-const pretty = require('pretty-var-export');
 const fs = require('fs');
 const fixtureJs1Function = fs.readFileSync(
 	`${__dirname}/../../test-fixtures/js-1-function.js`,

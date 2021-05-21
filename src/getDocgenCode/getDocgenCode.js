@@ -38,7 +38,8 @@ function _getDocgenProps(params) {
 		props[param.name] = {
 			description: param.description,
 			required: param.required,
-			type: { name: param.type || 'undefined' },
+			type: { name: param.type },
+			defaultValue: { value: param.default, computed: false },
 		};
 	});
 	return props;

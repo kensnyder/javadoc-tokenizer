@@ -1,6 +1,4 @@
 const Tokenizer = require('./Tokenizer.js');
-const pretty = require('pretty-var-export');
-const fs = require('fs');
 
 describe('Tokenizer.tokenizeBlock', () => {
 	it('should handle ignore', () => {
@@ -243,8 +241,7 @@ describe('Tokenizer._convertParamTag', () => {
 		const tokenizer = new Tokenizer();
 		const converted = tokenizer._convertParamTag({
 			type: 'tag',
-			raw:
-				'@param {Number|String} [precision="auto"]  The decimal precision or "auto"',
+			raw: '@param {Number|String} [precision="auto"]  The decimal precision or "auto"',
 			key: 'param',
 			value:
 				'{Number|String} [precision="auto"]  The decimal precision or "auto"',

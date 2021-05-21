@@ -1,5 +1,97 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`extract() should parse a function with default param values 1`] = `
+Array [
+  Object {
+    "access": "public",
+    "canAddDocgen": true,
+    "chainable": null,
+    "contextCode": "export default function visitUrl(url = window.location.href, delay = 5000)",
+    "customTags": Array [],
+    "deprecated": null,
+    "description": "Convert numeric bytes to a rounded number with label",
+    "examples": Array [
+      Object {
+        "description": "",
+        "language": "js",
+        "text": "visitUrl('/', 3000) // visit URL after 3 seconds",
+        "type": "javadoc",
+      },
+    ],
+    "ignore": false,
+    "name": "visitUrl",
+    "params": Array [
+      Object {
+        "default": "window.location.href",
+        "description": "The URL to visit",
+        "name": "url",
+        "properties": Array [],
+        "required": false,
+        "type": "String",
+      },
+      Object {
+        "default": 5000,
+        "description": "The delay before visiting",
+        "name": "delay",
+        "properties": Array [],
+        "required": false,
+        "type": "Number",
+      },
+    ],
+    "returns": Object {
+      "description": "",
+      "properties": Array [],
+      "type": "String",
+    },
+    "see": Array [],
+    "signature": "visitUrl(url = window.location.href, delay = 5000) ⇒ {String}",
+    "since": null,
+    "subtype": null,
+    "throws": Array [],
+    "todos": Array [],
+    "type": "function",
+    "version": null,
+  },
+  Object {
+    "access": "public",
+    "canAddDocgen": true,
+    "chainable": null,
+    "contextCode": "function ignoreMe(foo)",
+    "customTags": Array [],
+    "deprecated": null,
+    "description": "",
+    "examples": Array [],
+    "ignore": true,
+    "name": "ignoreMe",
+    "params": Array [
+      Object {
+        "default": undefined,
+        "description": "",
+        "name": "foo",
+        "properties": Array [],
+        "required": true,
+        "type": undefined,
+      },
+    ],
+    "returns": Object {
+      "description": "",
+      "properties": Array [],
+      "type": undefined,
+    },
+    "see": Array [
+      "http://example.com/foobar",
+    ],
+    "signature": "ignoreMe(foo) ⇒ {undefined}",
+    "since": null,
+    "subtype": null,
+    "throws": Array [],
+    "todos": Array [],
+    "type": "function",
+    "version": null,
+  },
+]
+`;
+
 exports[`extract() should parse a function with one function 1`] = `
 Array [
   Object {

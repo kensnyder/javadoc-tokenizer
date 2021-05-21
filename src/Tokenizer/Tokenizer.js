@@ -118,7 +118,8 @@ class Tokenizer {
 			const maybeAsync = block.async ? 'async ' : '';
 			const argsString = block.argsString;
 			const returnType = final.returns.type || 'undefined';
-			final.signature = `${maybeAsync}${final.name}(${argsString}) ⇒ {${returnType}}`.trim();
+			final.signature =
+				`${maybeAsync}${final.name}(${argsString}) ⇒ {${returnType}}`.trim();
 		}
 		return final;
 	}
@@ -160,7 +161,7 @@ class Tokenizer {
 		const [, type, name, description] =
 			//  $1    $2         $3
 			// {Type} paramName  Description
-			data.value.match(/^(?:{([^}]+)}\s+)?([\w_[\]='"]+)?(\s+.+)?$/) || [];
+			data.value.match(/^(?:{([^}]+)}\s+)?([\w_[\]='".]+)?(\s+.+)?$/) || [];
 		const [, nameWithoutBrackets, defValue] =
 			//  $1   $2
 			// [name=default]
